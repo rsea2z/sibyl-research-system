@@ -161,6 +161,17 @@ language: en
 
 See [Codex Integration](codex-integration.md) for full setup instructions.
 
+
+## API Gateway (Optional)
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `api_base_url` | string | `""` | Unified endpoint for both Anthropic/OpenAI-compatible traffic (for example `http://127.0.0.1:4141`) |
+| `anthropic_base_url` | string | `""` | Anthropic-specific override; when empty it falls back to `api_base_url` |
+| `openai_base_url` | string | `""` | OpenAI-specific override; when empty it falls back to `api_base_url` |
+
+Use this when you run a local API proxy/gateway and want Anthropic + OpenAI calls to go through one endpoint.
+
 ## Integrations
 
 | Field | Type | Default | Description |
