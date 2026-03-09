@@ -122,6 +122,27 @@ iteration_dirs: true
         assert c.remote_conda_env_name == ""
         assert c.iteration_dirs is False
 
+    def test_api_base_url_fallback(self, tmp_path):
+        yaml_path = tmp_path / "config.yaml"
+        yaml_path.write_text("api_base_url: http://127.0.0.1:4141\n", encoding="utf-8")
+        c = Config.from_yaml(str(yaml_path))
+        env = c.get_api_env()
+        assert env["ANTHROPIC_BASE_URL"] == "http://127.0.0.1:4141"
+        assert env["OPENAI_BASE_URL"] == "http://127.0.0.1:4141"
+
+    def test_provider_specific_api_base_url_override(self, tmp_path):
+        yaml_path = tmp_path / "config.yaml"
+        yaml_path.write_text(
+            "api_base_url: http://127.0.0.1:4141\n"
+            "anthropic_base_url: http://127.0.0.1:4141/anthropic\n"
+            "openai_base_url: http://127.0.0.1:4141/openai\n",
+            encoding="utf-8",
+        )
+        c = Config.from_yaml(str(yaml_path))
+        env = c.get_api_env()
+        assert env["ANTHROPIC_BASE_URL"] == "http://127.0.0.1:4141/anthropic"
+        assert env["OPENAI_BASE_URL"] == "http://127.0.0.1:4141/openai"
+
 
 # ══════════════════════════════════════════════
 # ContextBuilder

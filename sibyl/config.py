@@ -70,6 +70,11 @@ class Config:
     codex_enabled: bool = False
     codex_model: str = ""  # Codex model (empty = use default; ChatGPT accounts don't support custom models)
 
+    # API gateway routing
+    api_base_url: str = ""  # Optional unified endpoint for Anthropic/OpenAI-compatible clients
+    anthropic_base_url: str = ""  # Provider-specific override; falls back to api_base_url
+    openai_base_url: str = ""  # Provider-specific override; falls back to api_base_url
+
     # Writing mode
     writing_mode: str = "parallel"  # "sequential" | "parallel" | "codex"
     codex_writing_model: str = ""  # Codex writing model (empty = use default)
@@ -136,6 +141,7 @@ class Config:
             "lark_enabled", "evolution_enabled",
             "idea_exp_cycles",
             "codex_enabled", "codex_model", "writing_mode", "codex_writing_model",
+            "api_base_url", "anthropic_base_url", "openai_base_url",
             "experiment_mode", "server_codex_path", "server_claude_path",
             "remote_env_type", "remote_conda_path", "remote_conda_env_name",
             "iteration_dirs",
@@ -212,6 +218,17 @@ class Config:
         conda = self.remote_conda_path or f"{self.remote_base}/miniconda3/bin/conda"
         env_name = self.remote_conda_env_name or f"sibyl_{project_name}"
         return f"{conda} run -n {env_name}"
+
+    def get_api_env(self) -> dict[str, str]:
+        """Return environment overrides for Anthropic/OpenAI API routing."""
+        anthropic = self.anthropic_base_url or self.api_base_url
+        openai = self.openai_base_url or self.api_base_url
+        env: dict[str, str] = {}
+        if anthropic:
+            env["ANTHROPIC_BASE_URL"] = anthropic
+        if openai:
+            env["OPENAI_BASE_URL"] = openai
+        return env
 
     def to_dict(self) -> dict:
         """Serialize config for persisting into a project workspace."""
